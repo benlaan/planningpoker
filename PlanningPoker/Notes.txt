@@ -1,0 +1,64 @@
+﻿~/Team/Home
+
+	Fields:
+		Team Name
+
+	Commands:	
+		New
+		Join
+		View
+
+~/Team/Host
+
+	Fields:
+		End Time
+		List<Player>
+			Name
+			Score
+		Team Name
+
+	Commands:
+		Start
+		Stop
+		Reset
+		Eject
+
+	Events:
+		PlayerJoined
+		PlayerLeft
+		EndTable
+		Stopped
+		Started
+		Reset
+
+~/Team/View
+
+	Fields:
+		End Time
+		List<Player>
+			Name
+			Score
+		Team Name
+
+	Events:
+		PlayerJoined
+		PlayerLeft
+		Stopped
+		Started
+		Reset
+
+~/Team/Play
+
+	Fields:
+		End Time
+		Score Options - (0, 1/2, 1, 2, 3, 5, 8, 13, 20, 40, 100, inf, ?)
+
+	Commands:
+		Submit
+		Leave
+
+	Events:
+		Stopped
+		Started
+		Reset
+		
