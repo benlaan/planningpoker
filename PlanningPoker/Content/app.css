@@ -1,0 +1,35 @@
+﻿.center {
+
+    float: none !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.card {
+
+    float:left;
+    display: inline-block;
+    font-size: xx-large;
+    margin: 10px 10px 40px 10px;
+    height: 200px;
+    width: 120px;
+    background-color: #dfe3e4;
+    box-shadow: 5px 5px 5px #888;
+    border-radius: 10px;
+}
+
+    .card .score {
+
+        position:relative;
+        top:90px;
+        text-align: center;
+        font-size: xx-large;
+    }
+
+    .card .playerName {
+
+        position:relative;
+        top:140px;
+        text-align: center;
+        font-size: large;
+    }

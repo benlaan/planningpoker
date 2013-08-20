@@ -154,18 +154,25 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Team.cs" />
     <Compile Include="Hubs\TeamHub.cs" />
+    <Compile Include="Models\TeamStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App\main.js" />
-    <Content Include="App\viewmodels\flickr.js" />
+    <Content Include="App\components\signalr.js" />
+    <Content Include="App\viewmodels\team\view.js" />
+    <Content Include="App\viewmodels\team\join.js" />
+    <Content Include="App\viewmodels\team\host.js" />
     <Content Include="App\viewmodels\shell.js" />
-    <Content Include="App\viewmodels\welcome.js" />
-    <Content Include="App\views\detail.html" />
-    <Content Include="App\views\flickr.html" />
+    <Content Include="App\viewmodels\start.js" />
+    <Content Include="App\views\team\join.html" />
+    <Content Include="App\views\team\view.html" />
+    <Content Include="App\views\team\host.html" />
     <Content Include="App\views\shell.html" />
-    <Content Include="App\views\welcome.html" />
+    <Content Include="App\views\start.html" />
+    <Content Include="Content\app.css" />
     <Content Include="Content\bootstrap-responsive.css" />
     <Content Include="Content\bootstrap-responsive.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -223,6 +230,9 @@
     <Content Include="Views\Web.config" />
     <Content Include="weyland-config.js" />
     <Content Include="Scripts\jquery-1.9.1.min.map" />
+    <Content Include="Scripts\jquery-1.9.1.min.js.map">
+      <DependentUpon>jquery-1.9.1.js</DependentUpon>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -265,9 +275,9 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>54238</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:60959/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>

@@ -8717,7 +8717,7 @@ function Animation( elem, properties, options ) {
 				return false;
 			}
 			var currentTime = fxNow || createFxNow(),
-				remaining = Math.max( 0, animation.startTime + animation.duration - currentTime ),
+				remaining = Math.max( 0, animation.endTime + animation.duration - currentTime ),
 				// archaic crash bug won't allow us to use 1 - ( 0.5 || 0 ) (#12497)
 				temp = remaining / animation.duration || 0,
 				percent = 1 - temp,
@@ -8743,7 +8743,7 @@ function Animation( elem, properties, options ) {
 			opts: jQuery.extend( true, { specialEasing: {} }, options ),
 			originalProperties: properties,
 			originalOptions: options,
-			startTime: fxNow || createFxNow(),
+			endTime: fxNow || createFxNow(),
 			duration: options.duration,
 			tweens: [],
 			createTween: function( prop, end ) {

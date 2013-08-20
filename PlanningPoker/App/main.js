@@ -10,12 +10,12 @@
 define('jquery', function() { return jQuery; });
 define('knockout', ko);
 
-define(['durandal/system', 'durandal/app', 'durandal/viewLocator'],  function (system, app, viewLocator) {
+define(['durandal/system', 'durandal/app', 'durandal/viewLocator'], function (system, app, viewLocator) {
     //>>excludeStart("build", true);
     system.debug(true);
     //>>excludeEnd("build");
 
-    app.title = 'Durandal Starter Kit';
+    app.title = 'Laan Planning Power';
 
     app.configurePlugins({
         router: true,

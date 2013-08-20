@@ -1548,7 +1548,7 @@
             return transportLogic.foreverFrame.connections[id];
         },
 
-        started: function (connection) {
+        state: function (connection) {
             if (connection.onSuccess) {
                 connection.onSuccess();
                 connection.onSuccess = null;

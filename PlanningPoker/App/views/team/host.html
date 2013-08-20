@@ -1,0 +1,82 @@
+﻿<section>
+    <div data-bind="attr: { class: topClassName }">
+        <h2>Initialise Host</h2>
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label span10" for="groupName">Group Name</label>
+                <div class="controls">
+                    <input type="text" id="groupName" placeholder="enter a group name" data-bind="value: groupName">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label span4">Duration (sec)</label>
+                <div class="controls">
+                    <input type="text" data-bind="value: plannedDuration" title="sets the round's duration in seconds" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label span4">Participate</label>
+                <div class="controls">
+                    <input type="checkbox" data-bind="checked: participating" title="Allows the host to vote as well as run the group" />
+                </div>
+            </div>
+            <div data-bind="attr: { class: playerNameShow }">
+                <div class="control-group">
+                    <label class="control-label span4" for="playerName">Player Name</label>
+                    <div class="controls">
+                        <input type="text" id="playerName" placeholder="your name" data-bind="value: playerName">
+                    </div>
+                </div>
+            </div>
+            <a href="#" class="btn btn-primary btn-large" data-bind="click: submit">Host</a>
+        </form>
+    </div>
+
+    <div data-bind="attr: { class: bottomClassName }">
+        <div class="row-fluid">
+            <div class="span12">
+
+                <div class="alert alert-info">
+                    <h1 class="text-center bold" data-bind="text: groupName"></h1>
+                </div>
+                <h1 class="text-center" data-bind="text: remainingDuration"></h1>
+
+                <div class="progress">
+                    <div class="bar" data-bind="style: { width: progress }"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12 center">
+                <div data-bind="foreach: players">
+                    <div class="card">
+                        <label class="center score" data-bind="text: score"></label>
+                        <label class="center playerName" data-bind="text: name"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="center span6 btn-btngroup">
+                    <a href="#" class="btn btn-primary btn-large span3" data-bind="click: start, enable: canStart">
+                        <i class="icon-play"></i>
+                        <label>Start</label>
+                    </a>
+                    <a href="#" class="btn btn-primary btn-large span3" data-bind="click: pause, enable: canPause">
+                        <i class="icon-pause"></i>
+                        <label data-bind="text: pauseTitle" />
+                    </a>
+                    <a href="#" class="btn btn-primary btn-large span3" data-bind="click: stop, enable: canStop">
+                        <i class="icon-stop"></i>
+                        <label>Stop</label>
+                    </a>
+                    <a href="#" class="btn btn-primary btn-large span3" data-bind="click: newRound, enable: canReset">
+                        <i class="icon-repeat"></i>
+                        <label>Reset</label>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
