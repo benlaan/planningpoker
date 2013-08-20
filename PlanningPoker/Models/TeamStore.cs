@@ -35,26 +35,28 @@ namespace PlanningPoker.Controllers
 
             NewHost(teamName, teamName + " Host", participating, connectionId);
 
-            var players = new[] 
-            {
-                new { Name = "Ben",   Score = "?" },
-                new { Name = "Lin",   Score = "?" },
-                new { Name = "Lily",  Score = "?" },
-                new { Name = "Aiden", Score = "?" },
-                new { Name = "Dog",   Score = "?" },
-                new { Name = "Cat",   Score = "?" }
-            };
+            //// Test Data!
+            //var players = new[] 
+            //{
+            //    new { Name = "Ben",   Score = "?" },
+            //    new { Name = "Lin",   Score = "?" },
+            //    new { Name = "Lily",  Score = "?" },
+            //    new { Name = "Aiden", Score = "?" },
+            //    new { Name = "Dog",   Score = "?" },
+            //    new { Name = "Cat",   Score = "?" }
+            //};
 
-            foreach (var player in players)
-            {
-                NewPlayer(teamName, player.Name, Guid.NewGuid().ToString());
-            }
+            //foreach (var player in players)
+            //{
+            //    NewPlayer(teamName, player.Name, Guid.NewGuid().ToString());
+            //}
         }
 
         public void NewRound(string connectionId)
         {
             var team = GetTeamByConnectionId(connectionId);
-            team.Reset();
+            if (team != null)
+                team.Reset();
         }
 
         public void NewPlayer(string teamName, string playerName, string connectionId)
@@ -76,7 +78,8 @@ namespace PlanningPoker.Controllers
         public void SubmitScore(string score, string connectionId)
         {
             var team = GetTeamByConnectionId(connectionId);
-            team.SubmitCardScore(score, connectionId);
+            if (team != null)
+                team.SubmitCardScore(score, connectionId);
         }
 
         public void RemovePlayer(string connectionId)
@@ -94,19 +97,22 @@ namespace PlanningPoker.Controllers
         public void Start(string connectionId)
         {
             var team = GetTeamByConnectionId(connectionId);
-            team.Start();
+            if (team != null)
+                team.Start();
         }
 
         public void Stop(string connectionId)
         {
             var team = GetTeamByConnectionId(connectionId);
-            team.Stop();
+            if (team != null)
+                team.Stop();
         }
 
         public void Pause(string connectionId)
         {
             var team = GetTeamByConnectionId(connectionId);
-            team.Pause();
+            if (team != null)
+                team.Pause();
         }
 
         public static TeamStore Instance

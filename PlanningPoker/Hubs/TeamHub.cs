@@ -24,27 +24,27 @@ namespace PlanningPoker.Controllers
             _storage = storage;
         }
 
-        public async void NewTeam(string teamName, int duration, bool participating)
+        public void NewTeam(string teamName, int duration, bool participating)
         {
-            await Groups.Add(Context.ConnectionId, teamName);
+            Groups.Add(Context.ConnectionId, teamName);
             _storage.NewTeam(teamName, duration, participating, Context.ConnectionId);
+        }
+
+        public void NewPlayer(string teamName, string playerName)
+        {
+            Groups.Add(Context.ConnectionId, teamName);
+            _storage.NewPlayer(teamName, playerName, Context.ConnectionId);
+        }
+
+        public void NewViewer(string teamName, string playerName)
+        {
+            Groups.Add(Context.ConnectionId, teamName);
+            _storage.NewViewer(teamName, playerName, Context.ConnectionId);
         }
 
         public void NewRound()
         {
             _storage.NewRound(Context.ConnectionId);
-        }
-
-        public async void NewPlayer(string teamName, string playerName)
-        {
-            await Groups.Add(Context.ConnectionId, teamName);
-            _storage.NewPlayer(teamName, playerName, Context.ConnectionId);
-        }
-
-        public async void NewViewer(string teamName, string playerName)
-        {
-            await Groups.Add(Context.ConnectionId, teamName);
-            _storage.NewViewer(teamName, playerName, Context.ConnectionId);
         }
 
         public void SubmitScore(string score)

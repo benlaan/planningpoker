@@ -1,12 +1,46 @@
 ﻿<section>
+    <div data-bind="attr: { class: topClassName }">
+        <h2>Join Team</h2>
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label span10" for="groupName">Group Name</label>
+                <div class="controls">
+                    <input type="text" id="groupName" placeholder="enter a group name" data-bind="value: groupName">
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label span4" for="playerName">Player Name</label>
+                <div class="controls">
+                    <input type="text" id="playerName" placeholder="your name" data-bind="value: playerName">
+                </div>
+            </div>
+            <a href="#" class="btn btn-primary btn-large" data-bind="click: submit">Join</a>
+        </form>
+    </div>
 
-    <h2>Join</h2>
-    <form>
-        <fieldset>
-            <legend>Details</legend>
-            <label>Group Name</label>
-            <input type="text" placeholder="enter a group name" data-bind="value: groupName">
-            <button type="submit" data-bind="click: submit" class="btn">Join</button>
-        </fieldset>
-    </form>
+    <div data-bind="attr: { class: bottomClassName }">
+        <div class="row-fluid">
+            <div class="span12">
+
+                <div class="alert alert-info">
+                    <h1 class="text-center bold" data-bind="text: groupName"></h1>
+                </div>
+                <h1 class="text-center" data-bind="text: remainingDuration"></h1>
+
+                <div class="progress">
+                    <div class="bar" data-bind="style: { width: progress }"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12 center">
+                <div data-bind="foreach: { data: scores, as: 'score' }">
+                    <div class="card" data-bind="click: function () { updateScore(score); }">
+                        <label class="center score" data-bind="text: score"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
 </section>

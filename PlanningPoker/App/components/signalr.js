@@ -41,6 +41,8 @@
             proxy.server.newRound();
         },
 
+        submitScore: proxy.server.submitScore,
+
         client: proxy.client
     };
 

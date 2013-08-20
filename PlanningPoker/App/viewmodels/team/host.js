@@ -82,12 +82,20 @@
 
         signalr.client.addPlayer = function (playerName) {
 
-            self.players.push({ name: playerName, score: "?" });
+            self.players.push({ name: playerName, score: ko.observable("?") });
         };
 
         signalr.client.removePlayer = function (playerName) {
 
-            self.players.remove(function (p) { p.name == playerName; });
+            self.players.remove(function (p) { return p.name == playerName; });
+        };
+
+        signalr.client.updateScore = function (playerName, score) {
+
+            var player = ko.utils.arrayFilter(self.players(), function (p) { return p.name == playerName; });
+
+            if (player.length > 0)
+                player[0].score(score);
         };
 
         this.updateState(this.state);

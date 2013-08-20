@@ -39,14 +39,14 @@ namespace PlanningPoker.Controllers
         private Timer _timer;
         private readonly IHubConnectionContext _hubConnectionContext;
         private int _timeRemaining;
-        
+
         /// <summary>
         /// Initializes a new instance of the Team class.
         /// </summary>
         public Team(string name, int duration, IHubConnectionContext hubConnectionContext)
         {
             _hubConnectionContext = hubConnectionContext;
-            
+
             Duration = duration;
             _timeRemaining = duration;
             Name = name;
@@ -75,8 +75,11 @@ namespace PlanningPoker.Controllers
             Player player = new Player { Name = playerName, Mode = mode };
             Players[connectionId] = player;
 
-            if (mode == ClientMode.Scorer || mode == ClientMode.ParticipatingHost)
+            if (mode != ClientMode.Host)
+            {
                 _hubConnectionContext.Group(Name).AddPlayer(player.Name);
+                _hubConnectionContext.Client(connectionId).Joined(_scores);
+            }
 
             return player;
         }
