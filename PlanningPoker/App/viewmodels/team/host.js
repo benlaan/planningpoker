@@ -1,36 +1,107 @@
 ﻿define(['components/signalr', 'knockout'], function (signalr, ko) {
 
     // state 'enum'
-    var stateInit     = 0;
-    var stateRunning  = 1;
-    var statePaused   = 2;
-    var stateStopped  = 3;
+    var stateInit = 0;
+    var stateRunning = 1;
+    var statePaused = 2;
+    var stateStopped = 3;
     var stateFinished = 4;
 
-    function Host()
-    {
+    function TimeManager() {
+
         var scale = Math.pow(10, 7);
         var remaining = 120;
         var self = this;
-        
-        this.topClassName = ko.observable("");
-        this.bottomClassName = ko.observable("hide");
-        this.groupName = ko.observable("Test");
-        this.pauseTitle = ko.observable("Pause");
 
-        this.state = stateInit;
+        this.hostState = stateInit;
+        this.timerId = null;
         this.endTime = null;
-        this.totalDuration = remaining;
 
+        this.totalDuration = remaining;
         this.plannedDuration = ko.observable(remaining.toString());
         this.remainingDuration = ko.observable("");
         this.progress = ko.observable(0);
-        this.timerId = null;
 
-        this.canStart = ko.observable(true);
-        this.canStop = ko.observable(false);
-        this.canPause = ko.observable(false);
-        this.canReset = ko.observable(false);
+        formatDuration = function (duration) {
+
+            var remainingMinutes = parseInt(duration / 60);
+            var remainingSeconds = parseInt(duration % 60);
+
+            self.totalDuration = duration;
+            return remainingMinutes + ":" + (remainingSeconds < 10 ? "0" : "") + remainingSeconds;
+        };
+
+        this.getTicks = function (dateTime) {
+
+            return ((dateTime.getTime() * 10000) + 621355968000000000);
+        }
+
+        this.updateTime = function () {
+
+            var duration = 0;
+
+            switch (self.hostState) {
+
+                case stateInit:
+                    duration = parseInt(self.plannedDuration());
+                    break;
+
+                case stateRunning:
+
+                    var nowTicks = self.getTicks(new Date());
+                    var endTicks = self.getTicks(new Date(self.endTime));
+                    duration = parseInt((endTicks - nowTicks) / scale);
+                    break;
+
+                case stateStopped:
+                case statePaused:
+                    duration = self.totalDuration;
+                    break;
+            }
+
+            var totalDuration = parseInt(self.plannedDuration());
+            var remainingDuration = duration;
+            var progression = (100 - (100 * (duration / totalDuration))) + "%";
+            self.progress(progression);
+            self.remainingDuration(formatDuration(duration));
+        };
+
+        this.updateState = function (state) {
+
+            self.hostState = state;
+
+            if (state != stateFinished)
+                timerId = setInterval(self.updateTime, 1000);
+            else
+                clearInterval(timerId);
+
+        };
+
+        this.formattedPlannedDuration = function () {
+
+            return formatDuration(parseInt(self.plannedDuration()));
+        };
+
+        this.updateRemainingTime = function () {
+
+            self.remainingDuration(self.formattedPlannedDuration());
+        };
+    };
+
+    function Host() {
+
+        var self = this;
+
+        this.topClassName = ko.observable("");
+        this.bottomClassName = ko.observable("hide");
+        this.groupName = ko.observable("Violet Team");
+        this.pauseTitle = ko.observable("Pause");
+
+        this.state = stateInit;
+        this.canStart = ko.observable();
+        this.canStop  = ko.observable();
+        this.canPause = ko.observable();
+        this.canReset = ko.observable();
 
         this.participating = ko.observable(false);
         this.playerName = ko.observable("");
@@ -48,16 +119,9 @@
         this.players().push({ name: "Dog",   score: "?" });
         this.players().push({ name: "Cat",   score: "?" });
 
-        formatDuration = function(duration)
-        {
-            var remainingMinutes = parseInt(duration / 60);
-            var remainingSeconds = parseInt(duration % 60);
+        this.timer = new TimeManager();
 
-            self.totalDuration = duration;
-            return remainingMinutes + ":" + (remainingSeconds < 10 ? "0" : "") + remainingSeconds;
-        };
-
-        updateState = function (state) {
+        this.updateState = function (state) {
 
             self.state = state;
             self.canStart(state == stateInit);
@@ -65,59 +129,23 @@
             self.canPause(state == stateRunning || state == statePaused);
             self.canReset(state == stateStopped || state == stateFinished || state == statePaused);
 
-            if (state != stateFinished) 
-                timerId = setInterval(self.updateTime, 100);
-            else
-                clearInterval(timerId);
+            self.pauseTitle(state == statePaused ? "Resume" : "Pause ");
+
+           self.timer.updateState(self.state);
         };
 
         this.submit = function () {
 
-            signalr.newTeam(this.groupName(), parseInt(this.plannedDuration()));
+            signalr.newTeam(this.groupName(), parseInt(self.timer.plannedDuration()));
 
-            if (this.participating()) 
+            if (this.participating())
                 signalr.newPlayer(this.groupName(), this.playerName());
-            else 
+            else
                 signalr.newViewer(this.groupName(), this.groupName() + "Host");
 
             this.topClassName("hide");
             this.bottomClassName("");
-            this.remainingDuration(formatDuration(parseInt(this.plannedDuration())));
-        };
-
-        this.updateTime = function () {
-
-            var getTicks = function (dateTime) {
-
-                return ((dateTime.getTime() * 10000) + 621355968000000000);
-            }
-
-            var duration = 0;
-
-            switch (self.state)
-            {
-                case stateInit:
-                    duration = parseInt(self.plannedDuration());
-                    break;
-
-                case stateRunning:
-
-                    var nowTicks = getTicks(new Date());
-                    var endTicks = getTicks(new Date(self.endTime));
-                    duration = parseInt((endTicks - nowTicks) / scale);
-                    break;
-
-                case stateStopped:
-                case statePaused:
-                    duration = self.totalDuration;
-                    break;
-            }
-
-            var totalDuration = parseInt(self.plannedDuration());
-            var remainingDuration = duration;
-            var progression = (100 - (100 * (duration / totalDuration))) + "%";
-            self.progress(progression);
-            self.remainingDuration(formatDuration(duration));
+            this.timer.updateRemainingTime();
         };
 
         this.start = signalr.start;
@@ -127,24 +155,22 @@
 
         signalr.client.started = function (endTime) {
 
-            self.endTime = endTime;
-            updateState(stateRunning);
+            self.timer.endTime = endTime;
+            self.updateState(stateRunning);
         };
 
         signalr.client.stopped = function () {
 
-            self.totalDuration = 0;
-            updateState(stateFinished);
+            self.timer.totalDuration = 0;
+            self.updateState(stateFinished);
         };
 
         signalr.client.paused = function (endTime, durationRemaining) {
 
-            self.endTime = endTime;
-            self.duration = durationRemaining;
-            var newState = self.state == statePaused ? stateRunning : statePaused;
-            updateState(newState);
-            var pauseTitle = self.state == statePaused ? "Resume" : "Pause ";
-            self.pauseTitle(pauseTitle);
+            self.timer.endTime = endTime;
+            self.timer.duration = durationRemaining;
+
+            self.updateState(self.state == statePaused ? stateRunning : statePaused);
         };
 
         signalr.client.reset = function () {
@@ -152,6 +178,8 @@
             updateState(stateInit);
             self.pauseTitle("Pause");
         };
+
+        this.updateState(this.state);
     };
 
     return new Host();
