@@ -16,9 +16,9 @@
             proxy.server.newViewer(team, player);
         },
 
-        newTeam: function (team, duration) {
+        newTeam: function (team, duration, participating) {
 
-            proxy.server.newTeam(team, duration);
+            proxy.server.newTeam(team, duration, participating);
         },
 
         start: function () {

@@ -11,7 +11,7 @@
             <div class="control-group">
                 <label class="control-label span4">Duration (sec)</label>
                 <div class="controls">
-                    <input type="text" data-bind="value: timer.plannedDuration" title="sets the round's duration in seconds" />
+                    <input type="text" data-bind="value: plannedDuration" title="sets the round's duration in seconds" />
                 </div>
             </div>
             <div class="control-group">
@@ -39,10 +39,10 @@
                 <div class="alert alert-info">
                     <h1 class="text-center bold" data-bind="text: groupName"></h1>
                 </div>
-                <h1 class="text-center" data-bind="text: timer.remainingDuration"></h1>
+                <h1 class="text-center" data-bind="text: remainingDuration"></h1>
 
                 <div class="progress">
-                    <div class="bar" data-bind="style: { width: timer.progress }"></div>
+                    <div class="bar" data-bind="style: { width: progress }"></div>
                 </div>
             </div>
         </div>

@@ -1,16 +1,16 @@
-﻿define(['components/signalr', 'knockout'], function (signalr, ko) {
+﻿define(['components/signalr', 'components/timeManager', 'components/states', 'knockout'], function (signalr, timer, states, ko) {
 
-    var join = new Client()
+    function Client()
     {
-        groupName = ko.observable("");
-        playerName = ko.observable("");
+        groupName = ko.observable("Violet Team");
+        playerName = ko.observable("Laany");
 
         submit = function () {
 
             signalr.newPlayer(groupName(), playerName());
 
         };
-    };
+    }
 
-    return join;
+    return new Client();
 });

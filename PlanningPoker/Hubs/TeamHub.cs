@@ -24,9 +24,10 @@ namespace PlanningPoker.Controllers
             _storage = storage;
         }
 
-        public void NewTeam(string teamName, int duration)
+        public async void NewTeam(string teamName, int duration, bool participating)
         {
-            _storage.NewTeam(teamName, duration);
+            await Groups.Add(Context.ConnectionId, teamName);
+            _storage.NewTeam(teamName, duration, participating, Context.ConnectionId);
         }
 
         public void NewRound()
@@ -69,6 +70,7 @@ namespace PlanningPoker.Controllers
         public override System.Threading.Tasks.Task OnDisconnected()
         {
             _storage.RemovePlayer(Context.ConnectionId);
+
             return base.OnDisconnected();
         }
     }

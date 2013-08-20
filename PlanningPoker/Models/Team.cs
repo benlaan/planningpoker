@@ -8,11 +8,19 @@ using Microsoft.AspNet.SignalR.Hubs;
 
 namespace PlanningPoker.Controllers
 {
+    public enum ClientMode
+    {
+        Scorer,
+        Host,
+        Viewer,
+        ParticipatingHost
+    }
+
     public class Player
     {
         public string Name { get; set; }
         public string Score { get; set; }
-        public bool ViewOnly { get; set; }
+        public ClientMode Mode { get; set; }
     }
 
     public enum TeamState
@@ -54,23 +62,23 @@ namespace PlanningPoker.Controllers
                 Stop();
         }
 
-        private Player AddClient(string playerName, string connectionId, bool viewOnly)
+        private void NotifyScoreForPlayer(Player player)
+        {
+            _hubConnectionContext.Group(Name).UpdateScore(player.Name, player.Score);
+        }
+
+        public Player AddClient(string playerName, string connectionId, ClientMode mode)
         {
             if (Players.ContainsKey(connectionId))
                 throw new Exception("Player already at Team");
 
-            Player player = new Player { Name = playerName, ViewOnly = viewOnly };
+            Player player = new Player { Name = playerName, Mode = mode };
             Players[connectionId] = player;
 
-            if (!viewOnly)
+            if (mode == ClientMode.Scorer || mode == ClientMode.ParticipatingHost)
                 _hubConnectionContext.Group(Name).AddPlayer(player.Name);
 
             return player;
-        }
-
-        private void NotifyScoreForPlayer(Player player)
-        {
-            _hubConnectionContext.Group(Name).UpdateScore(player.Name, player.Score);
         }
 
         public void Reset()
@@ -86,11 +94,6 @@ namespace PlanningPoker.Controllers
             }
         }
 
-        public void AddPlayer(string playerName, string connectionId)
-        {
-            AddClient(playerName, connectionId, false);
-        }
-
         public bool RemovePlayer(string connectionId)
         {
             Player player;
@@ -99,11 +102,6 @@ namespace PlanningPoker.Controllers
                 _hubConnectionContext.Group(Name).RemovePlayer(player.Name);
 
             return removed;
-        }
-
-        public void AddViewer(string playerName, string connectionId)
-        {
-            Player player = AddClient(playerName, connectionId, true);
         }
 
         public void SubmitCardScore(string score, string connectionId)
