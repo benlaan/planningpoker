@@ -36,10 +36,10 @@ namespace PlanningPoker.Controllers
             _storage.NewPlayer(teamName, playerName, Context.ConnectionId);
         }
 
-        public void NewViewer(string teamName, string playerName)
+        public void NewViewer(string teamName)
         {
             Groups.Add(Context.ConnectionId, teamName);
-            _storage.NewViewer(teamName, playerName, Context.ConnectionId);
+            _storage.NewViewer(teamName, teamName + Context.ConnectionId, Context.ConnectionId);
         }
 
         public void NewRound()

@@ -80,9 +80,9 @@
             self.updateState(states.Init);
         };
 
-        signalr.client.addPlayer = function (playerName) {
+        signalr.client.addPlayer = function (playerName, score) {
 
-            self.players.push({ name: playerName, score: ko.observable("?") });
+            self.players.push({ name: playerName, score: ko.observable(score) });
         };
 
         signalr.client.removePlayer = function (playerName) {

@@ -1,7 +1,6 @@
 ﻿<section>
-    <h2>View</h2>
     <div data-bind="attr: { class: topClassName }">
-        <h2>Initialise Host</h2>
+        <h2>View Team</h2>
         <form class="form-horizontal">
             <div class="control-group">
                 <label class="control-label span10" for="groupName">Group Name</label>
@@ -11,5 +10,31 @@
             </div>
             <a href="#" class="btn btn-primary btn-large" data-bind="click: submit">View</a>
         </form>
+    </div>
+
+    <div data-bind="attr: { class: bottomClassName }">
+        <div class="row-fluid">
+            <div class="span12">
+
+                <div class="alert alert-info">
+                    <h1 class="text-center bold" data-bind="text: groupName"></h1>
+                </div>
+                <h1 class="text-center" data-bind="text: remainingDuration"></h1>
+
+                <div class="progress">
+                    <div class="bar" data-bind="style: { width: progress }"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12 center">
+                <div data-bind="foreach: players">
+                    <div class="card">
+                        <label class="center score" data-bind="text: score"></label>
+                        <label class="center playerName" data-bind="text: name"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>

@@ -61,7 +61,7 @@ namespace PlanningPoker.Controllers
 
         public void NewPlayer(string teamName, string playerName, string connectionId)
         {
-            _teams[teamName].AddClient(playerName, connectionId, ClientMode.Scorer);
+            _teams[teamName].AddClient(playerName, connectionId, ClientMode.Player);
         }
 
         public void NewViewer(string teamName, string playerName, string connectionId)

@@ -10,7 +10,7 @@ namespace PlanningPoker.Controllers
 {
     public enum ClientMode
     {
-        Scorer,
+        Player,
         Host,
         Viewer,
         ParticipatingHost
@@ -18,6 +18,16 @@ namespace PlanningPoker.Controllers
 
     public class Player
     {
+        /// <summary>
+        /// Initializes a new instance of the Player class.
+        /// </summary>
+        public Player()
+        {
+            Name = String.Empty;
+            Score = "?";
+            Mode = ClientMode.Player;
+        }
+
         public string Name { get; set; }
         public string Score { get; set; }
         public ClientMode Mode { get; set; }
@@ -67,18 +77,52 @@ namespace PlanningPoker.Controllers
             _hubConnectionContext.Group(Name).UpdateScore(player.Name, player.Score);
         }
 
+        private void NotifyNewConnectionOfPlayers(string connectionId)
+        {
+            var otherPlayers = Players
+                .Values
+                .Where(p => p.Mode == ClientMode.Player || p.Mode == ClientMode.ParticipatingHost)
+                .ToList();
+
+            foreach (Player otherPlayer in otherPlayers)
+            {
+                _hubConnectionContext
+                    .Client(connectionId)
+                    .AddPlayer(otherPlayer.Name, otherPlayer.Score);
+            }
+        }
+
+        private void NotifyViewersOfNewPlayer(string connectionId, Player player)
+        {
+            _hubConnectionContext.Client(connectionId).Joined(_scores);
+
+            var nonPlayerConnectionIds = Players
+                .Where(p => p.Value.Mode == ClientMode.Player)
+                .Select(p => p.Key)
+                .ToArray();
+
+            _hubConnectionContext
+                .Group(Name, nonPlayerConnectionIds)
+                .AddPlayer(player.Name, player.Score);
+        }
+
         public Player AddClient(string playerName, string connectionId, ClientMode mode)
         {
             if (Players.ContainsKey(connectionId))
-                throw new Exception("Player already at Team");
+                throw new Exception("Player already within Team");
 
             Player player = new Player { Name = playerName, Mode = mode };
             Players[connectionId] = player;
 
-            if (mode != ClientMode.Host)
+            switch (mode)
             {
-                _hubConnectionContext.Group(Name).AddPlayer(player.Name);
-                _hubConnectionContext.Client(connectionId).Joined(_scores);
+                case ClientMode.Player:
+                    NotifyViewersOfNewPlayer(connectionId, player);
+                    break;
+
+                case ClientMode.Viewer:
+                    NotifyNewConnectionOfPlayers(connectionId);
+                    break;
             }
 
             return player;
