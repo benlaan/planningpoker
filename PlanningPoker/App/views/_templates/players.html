@@ -1,0 +1,15 @@
+﻿<section>
+    <div class="span12 center">
+        <div data-bind="foreach: { data: $data, as: 'player' }">
+            <div data-bind="attr: { class: player.cardClass }">
+                <label class="center score" data-bind="text: player.score"></label>
+                <!-- DEBUG ONLY -->
+                <!--
+                        <label class="center" data-bind="text: player.submittedScore"></label>
+                        <label class="center" data-bind="text: player.cardClass"></label>
+                    -->
+                <label class="center playerName" data-bind="text: player.name"></label>
+            </div>
+        </div>
+    </div>
+</section>
