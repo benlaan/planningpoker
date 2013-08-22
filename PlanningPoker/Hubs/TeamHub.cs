@@ -24,10 +24,10 @@ namespace PlanningPoker.Controllers
             _storage = storage;
         }
 
-        public void NewTeam(string teamName, int duration, bool participating)
+        public void NewTeam(string teamName, string playerName, int duration, bool participating)
         {
             Groups.Add(Context.ConnectionId, teamName);
-            _storage.NewTeam(teamName, duration, participating, Context.ConnectionId);
+            _storage.NewTeam(teamName, playerName, duration, participating, Context.ConnectionId);
         }
 
         public void NewPlayer(string teamName, string playerName)

@@ -1,5 +1,40 @@
 ﻿define(['components/signalr', 'components/timeManager', 'components/states', 'knockout'], function (signalr, timer, states, ko) {
 
+    function Player(name, score) {
+
+        var defaultValue = "?";
+        var self = this;
+
+        this.name = name;
+        this.score = ko.observable(score);
+        this.submittedScore = ko.observable(defaultValue);
+
+        this.isSubmitted = function () { return self.submittedScore() != defaultValue; };
+        this.isPresented = function () { return self.submittedScore() == self.score(); };
+
+        this.cardClass = ko.computed(function () {
+
+                var cardClass = "card";
+
+                if (self.isPresented())
+                    return cardClass + " frontface";
+
+                if (self.isSubmitted())
+                    return cardClass + " backface";
+
+                return cardClass; 
+            },
+            self
+        );
+
+        this.updateScore = function (score) {
+
+            self.submittedScore(score);
+            if (score == "?")
+                self.score(score);
+        };
+    };
+
     function Host() {
 
         var self = this;
@@ -16,7 +51,7 @@
         this.canReset = ko.observable();
 
         this.participating = ko.observable(false);
-        this.playerName = ko.observable("");
+        this.playerName = ko.observable("Hoster");
         this.players = ko.observableArray([]);
 
         this.playerNameShow = ko.computed(
@@ -51,11 +86,24 @@
 
         this.submit = function () {
 
-            signalr.newTeam(this.groupName(), parseInt(timer.plannedDuration()), this.participating());
+            signalr.newTeam(
+                this.groupName(),
+                this.playerName(), 
+                parseInt(timer.plannedDuration()), 
+                this.participating()
+            );
 
             self.topClassName("hide");
             self.bottomClassName("");
         };
+
+        this.showSubmittedScores = function () {
+
+            $.each(self.players(), function (i, p) {
+
+                p.score(p.submittedScore());
+            });
+        }
 
         signalr.client.started = function (endTime) {
 
@@ -67,6 +115,7 @@
 
             timer.totalDuration = 0;
             self.updateState(states.Finished);
+            self.showSubmittedScores();
         };
 
         signalr.client.paused = function (endTime, durationRemaining) {
@@ -82,7 +131,7 @@
 
         signalr.client.addPlayer = function (playerName, score) {
 
-            self.players.push({ name: playerName, score: ko.observable(score) });
+            self.players.push(new Player(playerName, score));
         };
 
         signalr.client.removePlayer = function (playerName) {
@@ -95,7 +144,11 @@
             var player = ko.utils.arrayFilter(self.players(), function (p) { return p.name == playerName; });
 
             if (player.length > 0)
-                player[0].score(score);
+                player[0].updateScore(score);
+
+            var submitCount = ko.utils.arrayFilter(self.players(), function (p) { return p.isSubmitted(); });
+            if (self.players().length == submitCount.length)
+                self.showSubmittedScores();
         };
 
         this.updateState(this.state);

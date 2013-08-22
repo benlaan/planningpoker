@@ -117,6 +117,7 @@ namespace PlanningPoker.Controllers
             switch (mode)
             {
                 case ClientMode.Player:
+                case ClientMode.ParticipatingHost:
                     NotifyViewersOfNewPlayer(connectionId, player);
                     break;
 
@@ -136,7 +137,7 @@ namespace PlanningPoker.Controllers
 
             foreach (Player player in Players.Values)
             {
-                player.Score = null;
+                player.Score = "?";
                 NotifyScoreForPlayer(player);
             }
         }

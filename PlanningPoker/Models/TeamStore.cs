@@ -24,39 +24,18 @@ namespace PlanningPoker.Controllers
             return _teams.Values.SingleOrDefault(t => t.Players.Any(p => p.Key == connectionId));
         }
 
-        public void NewTeam(string teamName, int duration, bool participating, string connectionId)
+        public void NewTeam(string teamName, string playerName, int duration, bool participating, string connectionId)
         {
             if (_teams.ContainsKey(teamName))
-                //throw new Exception("Team name already in use");
-                return;
+                throw new Exception("Team name already in use");
 
             var hub = GlobalHost.ConnectionManager.GetHubContext<TeamHub>().Clients;
-            _teams[teamName] = new Team(teamName, duration, hub);
+            Team team = new Team(teamName, duration, hub);
 
-            NewHost(teamName, teamName + " Host", participating, connectionId);
+            var mode = participating ? ClientMode.ParticipatingHost : ClientMode.Host;
+            team.AddClient(playerName, connectionId, mode);
 
-            //// Test Data!
-            //var players = new[] 
-            //{
-            //    new { Name = "Ben",   Score = "?" },
-            //    new { Name = "Lin",   Score = "?" },
-            //    new { Name = "Lily",  Score = "?" },
-            //    new { Name = "Aiden", Score = "?" },
-            //    new { Name = "Dog",   Score = "?" },
-            //    new { Name = "Cat",   Score = "?" }
-            //};
-
-            //foreach (var player in players)
-            //{
-            //    NewPlayer(teamName, player.Name, Guid.NewGuid().ToString());
-            //}
-        }
-
-        public void NewRound(string connectionId)
-        {
-            var team = GetTeamByConnectionId(connectionId);
-            if (team != null)
-                team.Reset();
+            _teams[teamName] = team;
         }
 
         public void NewPlayer(string teamName, string playerName, string connectionId)
@@ -69,17 +48,18 @@ namespace PlanningPoker.Controllers
             _teams[teamName].AddClient(playerName, connectionId, ClientMode.Viewer);
         }
 
-        public void NewHost(string teamName, string playerName, bool participating, string connectionId)
-        {
-            var mode = participating ? ClientMode.ParticipatingHost : ClientMode.Host;
-            _teams[teamName].AddClient(playerName, connectionId, mode);
-        }
-
         public void SubmitScore(string score, string connectionId)
         {
             var team = GetTeamByConnectionId(connectionId);
             if (team != null)
                 team.SubmitCardScore(score, connectionId);
+        }
+
+        public void NewRound(string connectionId)
+        {
+            var team = GetTeamByConnectionId(connectionId);
+            if (team != null)
+                team.Reset();
         }
 
         public void RemovePlayer(string connectionId)

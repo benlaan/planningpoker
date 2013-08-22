@@ -49,8 +49,12 @@
         <div class="row-fluid">
             <div class="span12 center">
                 <div data-bind="foreach: players">
-                    <div class="card">
+                    <div data-bind="attr: { class: cardClass }">
                         <label class="center score" data-bind="text: score"></label>
+                        <!--
+                            <label class="center" data-bind="text: submittedScore"></label>
+                            <label class="center" data-bind="text: cardClass"></label>
+                        -->
                         <label class="center playerName" data-bind="text: name"></label>
                     </div>
                 </div>
