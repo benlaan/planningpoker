@@ -1,4 +1,10 @@
-﻿define(['components/signalr', 'components/timeManager', 'components/states', 'knockout'], function (signalr, timer, states, ko) {
+﻿define([
+    'components/signalr',
+    'components/timeManager',
+    'components/states',
+    'knockout'
+
+], function (signalr, timer, states, ko) {
 
     function Client()
     {
@@ -8,7 +14,7 @@
         this.topClassName = ko.observable("");
         this.bottomClassName = ko.observable("hide");
 
-        this.groupName = ko.observable("Violet Team");
+        this.teamName = ko.observable("Violet Team");
         this.playerName = ko.observable("Laany");
 
         this.scores = ko.observableArray([]);
@@ -20,7 +26,7 @@
 
         submit = function () {
 
-            signalr.newPlayer(self.groupName(), self.playerName());
+            signalr.newPlayer(self.teamName(), self.playerName());
 
         };
 

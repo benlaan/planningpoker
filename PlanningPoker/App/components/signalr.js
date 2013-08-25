@@ -6,19 +6,19 @@
 
     var teamHub = {
 
+        newTeam: function (team, player, duration, participating) {
+
+            proxy.server.newTeam(team, player, duration, participating);
+        },
+
         newPlayer: function (team, player) {
 
             proxy.server.newPlayer(team, player);
         },
 
-        newViewer: function (team, player) {
+        newViewer: function (team) {
 
-            proxy.server.newViewer(team, player);
-        },
-
-        newTeam: function (team, player, duration, participating) {
-
-            proxy.server.newTeam(team, player, duration, participating);
+            proxy.server.newViewer(team);
         },
 
         start: function () {

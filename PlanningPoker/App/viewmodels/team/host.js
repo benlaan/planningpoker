@@ -1,39 +1,12 @@
-﻿define(['components/signalr', 'components/timeManager', 'components/states', 'knockout'], function (signalr, timer, states, ko) {
+﻿define([
 
-    function Player(name, score) {
+    'knockout',
+    'components/signalr',
+    'components/timeManager',
+    'components/teamManager',
+    'components/states'
 
-        var defaultValue = "?";
-        var self = this;
-
-        this.name = name;
-        this.score = ko.observable(score);
-        this.submittedScore = ko.observable(defaultValue);
-
-        this.isSubmitted = function () { return self.submittedScore() != defaultValue; };
-        this.isPresented = function () { return self.submittedScore() == self.score(); };
-
-        this.cardClass = ko.computed(function () {
-
-                var cardClass = "card";
-
-                if (self.isPresented())
-                    return cardClass + " frontface";
-
-                if (self.isSubmitted())
-                    return cardClass + " backface";
-
-                return cardClass; 
-            },
-            self
-        );
-
-        this.updateScore = function (score) {
-
-            self.submittedScore(score);
-            if (score == "?")
-                self.score(score);
-        };
-    };
+], function (ko, signalr, timer, TeamManager, states) {
 
     function Host() {
 
@@ -42,7 +15,12 @@
         this.topClassName = ko.observable("");
         this.bottomClassName = ko.observable("hide");
         this.pauseTitle = ko.observable("Pause");
-        this.groupName = ko.observable("Violet Team");
+        this.teamName = ko.observable("Violet Team");
+
+        self.teamManager = new TeamManager(self);
+
+        // FIX: copying observables from timer for ease of knockout binding shouldn't be required!!
+        self.players = self.teamManager.players;
 
         this.state = states.Init;
         this.canStart = ko.observable();
@@ -52,15 +30,13 @@
 
         this.participating = ko.observable(false);
         this.playerName = ko.observable("Hoster");
-        this.players = ko.observableArray([]);
-
         this.playerNameShow = ko.computed(
 
             function () { return self.participating() ? "" : "hide"; },
             self
         );
 
-        // copy observables from timer for ease of knockout binding
+        // FIX: copying observables from timer for ease of knockout binding shouldn't be required!!
         this.plannedDuration = timer.plannedDuration;
         this.remainingDuration = timer.remainingDuration;
         this.progress = timer.progress;
@@ -87,7 +63,7 @@
         this.submit = function () {
 
             signalr.newTeam(
-                this.groupName(),
+                this.teamName(),
                 this.playerName(), 
                 parseInt(timer.plannedDuration()), 
                 this.participating()
@@ -97,62 +73,9 @@
             self.bottomClassName("");
         };
 
-        this.showSubmittedScores = function () {
-
-            $.each(self.players(), function (i, p) {
-
-                p.score(p.submittedScore());
-            });
-        }
-
-        signalr.client.started = function (endTime) {
-
-            timer.endTime = endTime;
-            self.updateState(states.Running);
-        };
-
-        signalr.client.stopped = function () {
-
-            timer.totalDuration = 0;
-            self.updateState(states.Finished);
-            self.showSubmittedScores();
-        };
-
-        signalr.client.paused = function (endTime, durationRemaining) {
-
-            timer.updateEndTime(endTime, durationRemaining);
-            self.updateState(self.state == states.Paused ? states.Running : states.Paused);
-        };
-
-        signalr.client.reset = function () {
-
-            self.updateState(states.Init);
-        };
-
-        signalr.client.addPlayer = function (playerName, score) {
-
-            self.players.push(new Player(playerName, score));
-        };
-
-        signalr.client.removePlayer = function (playerName) {
-
-            self.players.remove(function (p) { return p.name == playerName; });
-        };
-
-        signalr.client.updateScore = function (playerName, score) {
-
-            var player = ko.utils.arrayFilter(self.players(), function (p) { return p.name == playerName; });
-
-            if (player.length > 0)
-                player[0].updateScore(score);
-
-            var submitCount = ko.utils.arrayFilter(self.players(), function (p) { return p.isSubmitted(); });
-            if (self.players().length == submitCount.length)
-                self.showSubmittedScores();
-        };
-
         this.updateState(this.state);
     };
 
-    return new Host();
+    var host = new Host();
+    return host;
 });

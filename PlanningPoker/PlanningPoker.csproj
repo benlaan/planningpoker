@@ -160,6 +160,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App\components\teamManager.js" />
+    <Content Include="App\components\player.js" />
     <Content Include="App\components\states.js" />
     <Content Include="App\components\timeManager.js" />
     <Content Include="App\main.js" />
