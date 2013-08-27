@@ -111,7 +111,7 @@ namespace PlanningPoker.Controllers
             if (Players.ContainsKey(connectionId))
                 throw new Exception("Player already within Team");
 
-            Player player = new Player { Name = playerName, Mode = mode };
+            var player = new Player { Name = playerName, Mode = mode };
             Players[connectionId] = player;
 
             switch (mode)
