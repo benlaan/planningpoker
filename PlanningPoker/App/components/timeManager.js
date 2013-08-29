@@ -8,14 +8,16 @@
 
         this.hostState = states.Init;
         this.timerId = null;
+        this.currentTime = null;
         this.endTime = null;
+        this.drift = 0;
 
         this.totalDuration = remaining;
         this.plannedDuration = ko.observable(remaining.toString());
         this.remainingDuration = ko.observable("");
         this.progress = ko.observable(0);
 
-        formatDuration = function (duration) {
+        this.formatDuration = function (duration) {
 
             var remainingMinutes = parseInt(duration / 60);
             var remainingSeconds = parseInt(duration % 60);
@@ -24,10 +26,20 @@
             return remainingMinutes + ":" + (remainingSeconds < 10 ? "0" : "") + remainingSeconds;
         };
 
-        this.getTicks = function (dateTime) {
+        this.getTicks = function(dateTime) {
 
             return ((dateTime.getTime() * 10000) + 621355968000000000);
-        }
+        };
+
+        this.setTime = function(currentTime, endTime) {
+
+            var localTime = new Date();
+
+            self.currentTime = new Date(currentTime);
+
+            self.drift = (localTime.getTime() - self.currentTime.getTime()) * 10000;
+            self.endTime = endTime;
+        };
 
         this.updateTime = function () {
 
@@ -43,7 +55,7 @@
 
                     var nowTicks = self.getTicks(new Date());
                     var endTicks = self.getTicks(new Date(self.endTime));
-                    duration = parseInt((endTicks - nowTicks) / scale);
+                    duration = parseInt((endTicks - nowTicks + self.drift) / scale);
                     break;
 
                 case states.Stopped:
@@ -53,10 +65,9 @@
             }
 
             var totalDuration = parseInt(self.plannedDuration());
-            var remainingDuration = duration;
             var progression = (100 - (100 * (duration / totalDuration))) + "%";
             self.progress(progression);
-            self.remainingDuration(formatDuration(duration));
+            self.remainingDuration(self.formatDuration(duration));
         };
 
         this.updateState = function (state) {
@@ -64,15 +75,15 @@
             self.hostState = state;
 
             if (state != states.Finished)
-                timerId = setInterval(self.updateTime, 1000);
+                self.timerId = setInterval(self.updateTime, 1000);
             else
-                clearInterval(timerId);
+                clearInterval(self.timerId);
 
         };
 
         this.formattedPlannedDuration = function () {
 
-            return formatDuration(parseInt(self.plannedDuration()));
+            return self.formatDuration(parseInt(self.plannedDuration()));
         };
 
         //this.updateRemainingTime = function () {
@@ -84,7 +95,6 @@
 
             self.endTime = endTime;
             self.duration = duration;
-
         };
     };
 
