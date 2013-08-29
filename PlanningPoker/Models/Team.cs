@@ -154,7 +154,7 @@ namespace PlanningPoker.Controllers
 
         public void SubmitCardScore(string score, string connectionId)
         {
-            if (_scores.All( s => s != score ))
+            if (_scores.All(s => s != score))
                 return;
 
             Player player = Players[connectionId];
@@ -166,8 +166,8 @@ namespace PlanningPoker.Controllers
         {
             State = TeamState.Started;
             CurrentTime = DateTime.UtcNow;
-            EndTime = CurrentTime.Add( new TimeSpan( 0, 0, Duration ) );
-            _hubConnectionContext.Group( Name ).Started( CurrentTime, EndTime );
+            EndTime = CurrentTime.Add(new TimeSpan(0, 0, Duration));
+            _hubConnectionContext.Group(Name).Started(CurrentTime, EndTime);
         }
 
         public void Stop()
@@ -190,7 +190,7 @@ namespace PlanningPoker.Controllers
             if (State == TeamState.Paused)
             {
                 CurrentTime = DateTime.UtcNow;
-                EndTime = CurrentTime.Add( new TimeSpan( 0, 0, _timeRemaining ) );
+                EndTime = CurrentTime.Add(new TimeSpan(0, 0, _timeRemaining));
                 State = TeamState.Started;
             }
             else
