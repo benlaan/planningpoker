@@ -43,10 +43,10 @@ namespace PlanningPoker.Controllers
 
     public class Team
     {
-        private string[] _scores = new[] { "?", "0", "½", "1", "2", "3", "5", "8", "13", "20", "40", "100", "∞" };
+        private readonly string[] _scores = new[] { "?", "0", "½", "1", "2", "3", "5", "8", "13", "20", "40", "100", "∞" };
 
         private TeamState _state;
-        private Timer _timer;
+        private readonly Timer _timer;
         private readonly IHubConnectionContext _sendTo;
         private int _timeRemaining;
 
@@ -68,7 +68,7 @@ namespace PlanningPoker.Controllers
 
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
-            if (State == TeamState.Started && DateTime.Now >= EndTime)
+            if (State == TeamState.Started && DateTime.UtcNow >= EndTime)
                 Stop();
         }
 
@@ -160,7 +160,7 @@ namespace PlanningPoker.Controllers
 
         public void SubmitCardScore(string score, string connectionId)
         {
-            if (!_scores.Any(s => s == score))
+            if (_scores.All(s => s != score))
                 return;
 
             Player player = Players[connectionId];
@@ -171,7 +171,8 @@ namespace PlanningPoker.Controllers
         public void Start()
         {
             State = TeamState.Started;
-            EndTime = DateTime.Now.Add(new TimeSpan(0, 0, Duration));
+            CurrentTime = DateTime.UtcNow;
+            EndTime = CurrentTime.Add(new TimeSpan(0, 0, Duration));
             _sendTo.Group(Name).Started(EndTime);
         }
 
@@ -194,12 +195,13 @@ namespace PlanningPoker.Controllers
             // Toggle Pause
             if (State == TeamState.Paused)
             {
-                EndTime = DateTime.Now.Add(new TimeSpan(0, 0, _timeRemaining));
+                CurrentTime = DateTime.UtcNow;
+                EndTime = CurrentTime.Add(new TimeSpan(0, 0, _timeRemaining));
                 State = TeamState.Started;
             }
             else
             {
-                _timeRemaining = (int)EndTime.Subtract(DateTime.Now).TotalSeconds;
+                _timeRemaining = (int)EndTime.Subtract(DateTime.UtcNow).TotalSeconds;
                 State = TeamState.Paused;
             }
 
@@ -218,6 +220,7 @@ namespace PlanningPoker.Controllers
 
         public int Duration { get; set; }
         public DateTime EndTime { get; set; }
+        public DateTime CurrentTime { get; set; }
         public string Name { get; set; }
 
         /// <summary>

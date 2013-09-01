@@ -47,9 +47,9 @@
             timer.updateState(self.state);
         };
 
-        signalr.client.started = function (endTime) {
+        signalr.client.started = function (currentTime, endTime) {
 
-            timer.endTime = endTime;
+            timer.setTime(currentTime, endTime);
             self.updateState(states.Running);
         };
 
