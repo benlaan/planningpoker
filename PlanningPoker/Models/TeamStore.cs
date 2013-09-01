@@ -24,28 +24,38 @@ namespace PlanningPoker.Controllers
             return _teams.Values.SingleOrDefault(t => t.Players.Any(p => p.Key == connectionId));
         }
 
-        public void NewTeam(string teamName, string playerName, int duration, bool participating, string connectionId)
+        public bool NewTeam(string teamName, string playerName, int duration, bool participating, string connectionId)
         {
-            if (_teams.ContainsKey(teamName))
-                throw new Exception("Team name already in use");
-
             var hub = GlobalHost.ConnectionManager.GetHubContext<TeamHub>().Clients;
-            Team team = new Team(teamName, duration, hub);
+
+            Team team;
+            string teamKeyName = teamName.ToLower();
+
+            if (_teams.TryGetValue(teamKeyName, out team))
+                return false;
+
+            team = new Team(teamKeyName, duration, hub);
 
             var mode = participating ? ClientMode.ParticipatingHost : ClientMode.Host;
             team.AddClient(playerName, connectionId, mode);
 
-            _teams[teamName] = team;
+            _teams[teamKeyName] = team;
+            return true;
+        }
+
+        private Team GetTeamByName(string teamName)
+        {
+            return _teams[teamName.ToLower()];
         }
 
         public void NewPlayer(string teamName, string playerName, string connectionId)
         {
-            _teams[teamName].AddClient(playerName, connectionId, ClientMode.Player);
+            GetTeamByName(teamName).AddClient(playerName, connectionId, ClientMode.Player);
         }
 
         public void NewViewer(string teamName, string playerName, string connectionId)
         {
-            _teams[teamName].AddClient(playerName, connectionId, ClientMode.Viewer);
+            GetTeamByName(teamName).AddClient(playerName, connectionId, ClientMode.Viewer);
         }
 
         public void SubmitScore(string score, string connectionId)
@@ -71,7 +81,7 @@ namespace PlanningPoker.Controllers
             team.RemovePlayer(connectionId);
 
             if (!team.Players.Any())
-                _teams.TryRemove(team.Name, out team);
+                _teams.TryRemove(team.Name.ToLower(), out team);
         }
         
         public void Start(string connectionId)

@@ -176,6 +176,7 @@
     <Content Include="App\views\team\host.html" />
     <Content Include="App\views\shell.html" />
     <Content Include="App\views\start.html" />
+    <Content Include="App\views\_templates\errorDisplay.html" />
     <Content Include="App\views\_templates\team.html" />
     <Content Include="App\views\_templates\players.html" />
     <Content Include="Content\app.css" />

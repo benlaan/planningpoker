@@ -8,7 +8,8 @@
 
 ], function (ko, signalr, timer, TeamManager, states) {
 
-    function Host() {
+    // transient instance pattern
+    return function Host() {
 
         var self = this;
 
@@ -27,14 +28,12 @@
         this.canStop  = ko.observable();
         this.canPause = ko.observable();
         this.canReset = ko.observable();
+        this.errorText = ko.observable("");
+        this.errorTextShow = ko.computed(function () { return self.errorText() != "" ? "" : "hide"; }, self);
 
         this.participating = ko.observable(false);
         this.playerName = ko.observable("Hoster");
-        this.playerNameShow = ko.computed(
-
-            function () { return self.participating() ? "" : "hide"; },
-            self
-        );
+        this.playerNameShow = ko.computed(function () { return self.participating() ? "" : "hide"; }, self);
 
         // FIX: copying observables from timer for ease of knockout binding shouldn't be required!!
         this.plannedDuration = timer.plannedDuration;
@@ -62,20 +61,33 @@
 
         this.submit = function () {
 
-            signalr.newTeam(
+            self.errorText("");
+
+            return signalr.newTeam(
                 this.teamName(),
-                this.playerName(), 
-                parseInt(timer.plannedDuration()), 
+                this.playerName(),
+                parseInt(timer.plannedDuration()),
                 this.participating()
-            );
+            )         
+        };
+
+        signalr.client.teamAdded = function () {
 
             self.topClassName("hide");
             self.bottomClassName("");
+            self.errorText("");
+        },
+
+        signalr.error = function (error) {
+
+            self.errorText(error.statusText || error);
+        };
+
+        signalr.client.error = function (error) {
+
+            self.errorText(error.statusText || error);
         };
 
         this.updateState(this.state);
     };
-
-    var host = new Host();
-    return host;
 });

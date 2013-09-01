@@ -16,6 +16,7 @@
 
         this.teamName = ko.observable("Violet Team");
         this.playerName = ko.observable("Laany");
+        this.errorText = ko.observable();
 
         this.scores = ko.observableArray([]);
 
@@ -73,6 +74,12 @@
 
             signalr.submitScore(score);
 
+        };
+
+        signalr.client.error = function (exception) {
+
+            console.log(exception);
+            self.errorText(exception);
         };
 
         timer.updateState(self.state);

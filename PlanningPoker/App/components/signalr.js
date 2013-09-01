@@ -2,13 +2,15 @@
 
     var proxy = $.connection.teamHub;
 
-    $.connection.hub.start({transport: ['webSockets', 'serverSentEvents', 'longPolling'] })
+    $.connection.hub.logging = true;
+
+    $.connection.hub.start({ transport: ['webSockets', 'serverSentEvents', 'longPolling'] })
 
     var teamHub = {
 
         newTeam: function (team, player, duration, participating) {
 
-            proxy.server.newTeam(team, player, duration, participating);
+            return proxy.server.newTeam(team, player, duration, participating)
         },
 
         newPlayer: function (team, player) {
@@ -41,10 +43,18 @@
             proxy.server.newRound();
         },
 
+        error: function() {},
+
         submitScore: proxy.server.submitScore,
 
         client: proxy.client
     };
+
+    $.connection.hub.error(function (error) {
+
+        console.log('SignalR error', error);
+        teamHub.error(error);
+    });
 
     return teamHub;
 });

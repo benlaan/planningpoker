@@ -47,7 +47,7 @@ namespace PlanningPoker.Controllers
 
         private TeamState _state;
         private Timer _timer;
-        private readonly IHubConnectionContext _hubConnectionContext;
+        private readonly IHubConnectionContext _sendTo;
         private int _timeRemaining;
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace PlanningPoker.Controllers
         /// </summary>
         public Team(string name, int duration, IHubConnectionContext hubConnectionContext)
         {
-            _hubConnectionContext = hubConnectionContext;
+            _sendTo = hubConnectionContext;
 
             Duration = duration;
             _timeRemaining = duration;
@@ -74,7 +74,7 @@ namespace PlanningPoker.Controllers
 
         private void NotifyScoreForPlayer(Player player)
         {
-            _hubConnectionContext.Group(Name).UpdateScore(player.Name, player.Score);
+            _sendTo.Group(Name).UpdateScore(player.Name, player.Score);
         }
 
         private void NotifyNewConnectionOfPlayers(string connectionId)
@@ -86,7 +86,7 @@ namespace PlanningPoker.Controllers
 
             foreach (Player otherPlayer in otherPlayers)
             {
-                _hubConnectionContext
+                _sendTo
                     .Client(connectionId)
                     .AddPlayer(otherPlayer.Name, otherPlayer.Score);
             }
@@ -94,24 +94,30 @@ namespace PlanningPoker.Controllers
 
         private void NotifyViewersOfNewPlayer(string connectionId, Player player)
         {
-            _hubConnectionContext.Client(connectionId).Joined(_scores);
+            _sendTo.Client(connectionId).Joined(_scores);
 
             var nonPlayerConnectionIds = Players
                 .Where(p => p.Value.Mode == ClientMode.Player)
                 .Select(p => p.Key)
                 .ToArray();
 
-            _hubConnectionContext
+            _sendTo
                 .Group(Name, nonPlayerConnectionIds)
                 .AddPlayer(player.Name, player.Score);
         }
 
         public Player AddClient(string playerName, string connectionId, ClientMode mode)
         {
-            if (Players.ContainsKey(connectionId))
-                throw new Exception("Player already within Team");
+            Player player;
+            if (Players.TryGetValue(connectionId, out player))
+            {
+                _sendTo.Client(connectionId).Error(
+                    String.Format("Player {0} already within Team", playerName)
+                );
+                return player;
+            }
 
-            var player = new Player { Name = playerName, Mode = mode };
+            player = new Player { Name = playerName, Mode = mode };
             Players[connectionId] = player;
 
             switch (mode)
@@ -133,7 +139,7 @@ namespace PlanningPoker.Controllers
         {
             State = TeamState.Initialised;
             _timeRemaining = Duration;
-            _hubConnectionContext.Group(Name).Reset();
+            _sendTo.Group(Name).Reset();
 
             foreach (Player player in Players.Values)
             {
@@ -147,7 +153,7 @@ namespace PlanningPoker.Controllers
             Player player;
             bool removed = Players.TryRemove(connectionId, out player);
             if (removed)
-                _hubConnectionContext.Group(Name).RemovePlayer(player.Name);
+                _sendTo.Group(Name).RemovePlayer(player.Name);
 
             return removed;
         }
@@ -166,7 +172,7 @@ namespace PlanningPoker.Controllers
         {
             State = TeamState.Started;
             EndTime = DateTime.Now.Add(new TimeSpan(0, 0, Duration));
-            _hubConnectionContext.Group(Name).Started(EndTime);
+            _sendTo.Group(Name).Started(EndTime);
         }
 
         public void Stop()
@@ -180,7 +186,7 @@ namespace PlanningPoker.Controllers
                 NotifyScoreForPlayer(player);
             }
 
-            _hubConnectionContext.Group(Name).Stopped();
+            _sendTo.Group(Name).Stopped();
         }
 
         public void Pause()
@@ -197,7 +203,7 @@ namespace PlanningPoker.Controllers
                 State = TeamState.Paused;
             }
 
-            _hubConnectionContext.Group(Name).Paused(EndTime, _timeRemaining);
+            _sendTo.Group(Name).Paused(EndTime, _timeRemaining);
         }
 
         public TeamState State

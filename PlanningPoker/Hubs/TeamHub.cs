@@ -4,6 +4,7 @@ using System.Linq;
 
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
+using System.Threading.Tasks;
 
 namespace PlanningPoker.Controllers
 {
@@ -27,18 +28,25 @@ namespace PlanningPoker.Controllers
         public void NewTeam(string teamName, string playerName, int duration, bool participating)
         {
             Groups.Add(Context.ConnectionId, teamName);
-            _storage.NewTeam(teamName, playerName, duration, participating, Context.ConnectionId);
+
+            if (_storage.NewTeam(teamName, playerName, duration, participating, Context.ConnectionId))
+                Clients.Client(Context.ConnectionId).TeamAdded();
+            else
+            {
+                Clients.Client(Context.ConnectionId).Error(String.Format("A Host with the name '{0}' already exists. Please try a different name", teamName));
+                Groups.Remove(Context.ConnectionId, teamName);
+            }
         }
 
-        public void NewPlayer(string teamName, string playerName)
+        public async void NewPlayer(string teamName, string playerName)
         {
-            Groups.Add(Context.ConnectionId, teamName);
+            await Groups.Add(Context.ConnectionId, teamName);
             _storage.NewPlayer(teamName, playerName, Context.ConnectionId);
         }
 
-        public void NewViewer(string teamName)
+        public async void NewViewer(string teamName)
         {
-            Groups.Add(Context.ConnectionId, teamName);
+            await Groups.Add(Context.ConnectionId, teamName);
             _storage.NewViewer(teamName, teamName + Context.ConnectionId, Context.ConnectionId);
         }
 

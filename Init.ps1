@@ -2,13 +2,14 @@
 {
 	if ($endWebDev.IsPresent) { Kill-WebDev }
 
-	chrome "http://$server/#host"
+	Invoke-Chrome "http://$server/#host"
+	Invoke-Chrome "http://$server/#host"
 
-	chrome "http://$server/#join"
-	chrome "http://$server/#join"
-	chrome "http://$server/#join"
+	#Invoke-Chrome "http://$server/#join"
+	#Invoke-Chrome "http://$server/#join"
+	#Invoke-Chrome "http://$server/#join"
 
-	chrome "http://$server/#view"
+	#Invoke-Chrome "http://$server/#view"
 }
 
 function Kill-WebDev

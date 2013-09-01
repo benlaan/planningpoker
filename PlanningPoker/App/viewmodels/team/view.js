@@ -42,6 +42,11 @@
             self.bottomClassName("");
         };
 
+        signalr.client.error = function (exception) {
+
+            console.log(exception);
+        };
+
         this.updateState(this.state);
     };
 
